@@ -4,16 +4,28 @@ import json
 # print "Number of arguments: ", len(sys.argv)
 # print "The arguments are: " , str(sys.argv)
 
-totalWaterFilterSold = int(sys.argv[1])
+serverData = json.loads(sys.argv[1])
+
+totalWaterFilterSold = 0
+
+for month in serverData:
+	totalWaterFilterSold += int(serverData[month])
+
+# totalWaterFilterSold = int(sys.argv[1])
 pricePerWaterFilter = 2500
 
-if(totalWaterFilterSold > 0 and totalWaterFilterSold < 6):
-	totalComission = (pricePerWaterFilter * totalWaterFilterSold * (5 / 100))
+
+if(totalWaterFilterSold > -1 and totalWaterFilterSold < 6):
+	percentage = 5
 else:
-	totalComission = (pricePerWaterFilter * totalWaterFilterSold * (15 / 100))
+	percentage = 15
+
+totalComission = (pricePerWaterFilter * totalWaterFilterSold * (percentage / 100))
 
 jsonFormat = {
-	"totalComission": totalComission
+	"totalComission": totalComission,
+	"totalUnitsSold": totalWaterFilterSold,
+	"totalComissionPecentage": percentage
 }
 
 print(json.dumps(jsonFormat))
