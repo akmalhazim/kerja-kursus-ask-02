@@ -13,24 +13,6 @@
 
         
     </head>
-    <body>
-        <!-- <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
-                        @endif
-                    @endauth
-                </div>
-            @endif
-        </div> -->
-
-
         <div class="container" id="app">
             <blockquote class="blockquote text-center">
               <h1 class="mb-0" style="margin-top: 20px;">Pengira jumlah comission bagi ejen penapis air</h1>
@@ -41,8 +23,6 @@
                     <div class="alert alert-success" style="margin-bottom: 2rem;" role="alert" v-if="result != null">
                           <h4 class="alert-heading">Tahniah!</h4>
                           <p>Jumlah commision anda adalah sebanyak: <strong>RM@{{ result.totalComission }}</strong></p><br/>
-                          <p>Anda layak menerima <strong>@{{ result.totalComissionPecentage }}%</strong> per penapis air</p>
-                          <hr>
                           <p class="mb-0">Jumlah unit terjual secara kesuluruhan: <strong>@{{ result.totalUnitsSold }}</strong></p>
                     </div>
                     <div class="card">
@@ -51,33 +31,18 @@
                       </div>
                     <div class="card-body">
                         <form @submit.prevent="submit">
-                          <div class="form-group">
-                            <label for="jan">Unit Terjual Bagi Bulan: <strong>January</strong></label>
-                            <input type="number" class="form-control" id="jan" placeholder="0" v-model="form.jan">
+                          <div class="form-group mb-4">
+                            <label for="price"><strong>Harga</strong> satu penapis air adalah: <strong>RM</strong></label>
+                            <input type="number" id="price" class="form-control" placeholder="2500" v-model="price">
                           </div>
-                          <div class="form-group">
-                            <label for="feb">Unit Terjual Bagi Bulan: <strong>February</strong></label>
-                            <input type="number" class="form-control" id="feb" placeholder="0" v-model="form.feb">
-                          </div>
-                          <div class="form-group">
-                            <label for="mac">Unit Terjual Bagi Bulan: <strong>March</strong></label>
-                            <input type="number" class="form-control" id="mac" placeholder="0" v-model="form.mac">
-                          </div>
-                          <div class="form-group">
-                            <label for="apr">Unit Terjual Bagi Bulan: <strong>April</strong></label>
-                            <input type="number" class="form-control" id="apr" placeholder="0" v-model="form.apr">
-                          </div>
-                          <div class="form-group">
-                            <label for="may">Unit Terjual Bagi Bulan: <strong>May</strong></label>
-                            <input type="number" class="form-control" id="may" placeholder="0" v-model="form.may">
-                          </div>
-                          <div class="form-group">
-                            <label for="jun">Unit Terjual Bagi Bulan: <strong>Jun</strong></label>
-                            <input type="number" class="form-control" id="jun" placeholder="0" v-model="form.jun">
-                          </div>
-                          <div class="form-group">
-                            <label for="jul">Unit Terjual Bagi Bulan: <strong>July</strong></label>
-                            <input type="number" class="form-control" id="jul" placeholder="0" v-model="form.jul">
+
+                          <div class="form-group mb-4" v-for="(item, index) in form" :key="item.id">
+                            <label :for="item.name">Unit Terjual Bagi Bulan: <strong>@{{ item.month }}</strong></label>
+                            <input type="number" class="form-control" :id="item.name" placeholder="0" v-model="item.value">
+                            
+                            <div class="alert mt-2" :class="getAlertClass(result.calculated[index].type)" role="alert" v-if="result">
+                              Komision untuk bulan <strong>@{{ item.month }}</strong> ialah <strong>RM@{{ result.calculated[index].comission }}</strong>
+                            </div>
                           </div>
 
                           <button type="submit" class="btn btn-primary btn-block mb-2">Calculate</button>
@@ -99,28 +64,77 @@
             new Vue({
                 data: function() {
                     return {
-                        form: {
-                            jan: 0,
-                            feb: 0,
-                            mac: 0,
-                            apr: 0,
-                            may: 0,
-                            jun: 0,
-                            jul: 0
-                        },
+                        price: 2500,
+                        form: [
+                            {
+                              month: 'Januari',
+                              value: 0
+                            },
+                            {
+                              month: 'Februari',
+                              value: 0
+                            },
+                            {
+                              month: 'Mac',
+                              value: 0
+                            },
+                            {
+                              month: 'April',
+                              value: 0
+                            },
+                            {
+                              month: 'Mei',
+                              value: 0
+                            },
+                            {
+                              month: 'Jun',
+                              value: 0
+                            },
+                            {
+                              month: 'Julai',
+                              value: 0
+                            },
+                            {
+                              month: 'Ogos',
+                              value: 0
+                            },
+                            {
+                              month: 'September',
+                              value: 0
+                            },
+                            {
+                              month: 'Oktober',
+                              value: 0
+                            },
+                            {
+                              month: 'November',
+                              value: 0
+                            },
+                            {
+                              month: 'Disember',
+                              value: 0
+                            }
+                        ],
                         result: null
                     }
                 },
                 methods: {
                     async submit() {
                         try {
-                            _result = await axios.post('/api/calculate', this.form)
+                            _result = await axios.post('/api/calculate', {
+                              months: this.form,
+                              price: this.price
+                            })
                             this.result = _result.data
 
                         } catch(err) {
                             this.result = null
                             console.error(err)
                         }
+                    },
+
+                    getAlertClass(type) {
+                      return `alert-${type}`;
                     }
                 }
             }).$mount('#app')

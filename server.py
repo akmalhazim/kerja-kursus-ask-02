@@ -1,31 +1,51 @@
 import sys
 import json
-# print "This is the name of the script: ", sys.argv[0]
-# print "Number of arguments: ", len(sys.argv)
-# print "The arguments are: " , str(sys.argv)
 
-serverData = json.loads(sys.argv[1])
+# Declare global variables
+totalWaterFilterSold = int(0)
+totalComission = float(0)
+calculatedResults = []
 
-totalWaterFilterSold = 0
+# Return the amount of comission for a specified value
+# @param int count, float price
+# @return float price
+def calculate(count, price) :
+	comission = float(0)
+	
+	if count > 5 :
+		type = 'success'
+		comission = float(0.15)
+	elif count > 1 :
+		type = 'warning'
+		comission = float(0.05)
+	else :
+		type = 'info'
+		comission = float(0)
 
-for month in serverData:
-	totalWaterFilterSold += int(serverData[month])
+	return {
+		"amount": count,
+		"comission": price * count * comission,
+		"percentage": comission,
+		"type": type
+	}
 
-# totalWaterFilterSold = int(sys.argv[1])
-pricePerWaterFilter = 2500
+# Declare user inputs variable
+months = json.loads(sys.argv[1]) # get the months array with amount of water filter sold for that month
+pricePerWaterFilter = int(sys.argv[2]) # get the price from the user input
 
+for month in months:
+	waterFilterSoldForThisMonth = int(month['value'])
+	calculated = calculate(waterFilterSoldForThisMonth, pricePerWaterFilter)
 
-if(totalWaterFilterSold > -1 and totalWaterFilterSold < 6):
-	percentage = 5
-else:
-	percentage = 15
-
-totalComission = (pricePerWaterFilter * totalWaterFilterSold * (percentage / 100))
+	# set global variables
+	calculatedResults.append(calculated)
+	totalWaterFilterSold += waterFilterSoldForThisMonth
+	totalComission += calculated['comission']
 
 jsonFormat = {
 	"totalComission": totalComission,
 	"totalUnitsSold": totalWaterFilterSold,
-	"totalComissionPecentage": percentage
+	"calculated": calculatedResults
 }
 
 print(json.dumps(jsonFormat))
